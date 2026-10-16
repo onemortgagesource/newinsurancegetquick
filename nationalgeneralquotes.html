@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetQuickInsurance — Auto & Home Insurance, Made Simple</title>
+<meta name="description" content="One quick call compares rates from many insurance companies so you can find fair coverage and a real person who helps. New quotes, policy updates, billing and coverage questions welcome.">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { display:['Figtree','sans-serif'], sans:['Inter','sans-serif'] },
+      colors: {
+        navy:'#012A4A', navydark:'#001B33', gold:'#FFC72C', golddark:'#E0A800',
+        mist:'#EEF4FA', cream:'#FFFFFF', ink:'#0B1220'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  body{ font-family:'Inter',sans-serif; background:#fff; color:#33475b; }
+  h1,h2,h3,.font-display{ font-family:'Figtree',sans-serif; letter-spacing:-0.01em; }
+
+  .grain::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.035; z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .aurora{ position:absolute; border-radius:9999px; filter:blur(70px); opacity:.5; pointer-events:none; }
+
+  .reveal{ opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity:1; transform:none; }
+
+  .btn{ transition:transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, background-color .2s, color .2s, border-color .2s; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-gold{ background:#FFC72C; color:#012A4A; box-shadow:0 12px 26px -10px rgba(255,199,44,.7); }
+  .btn-gold:hover{ background:#E0A800; box-shadow:0 16px 30px -10px rgba(255,199,44,.8); }
+  .btn-navy{ background:#012A4A; color:#fff; box-shadow:0 12px 26px -12px rgba(1,42,74,.6); }
+  .btn-navy:hover{ background:#001B33; }
+
+  .card{ transition:transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s; }
+  .card:hover{ transform:translateY(-6px); box-shadow:0 30px 60px -28px rgba(1,42,74,.28); }
+
+  input[type=range]{ -webkit-appearance:none; appearance:none; height:8px; border-radius:999px; background:#DCE6F0; outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:#fff; border:5px solid #012A4A; box-shadow:0 4px 12px rgba(1,42,74,.35); cursor:pointer; transition:transform .15s; }
+  input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.12); }
+  input[type=range]::-moz-range-thumb{ width:26px; height:26px; border-radius:50%; background:#fff; border:5px solid #012A4A; cursor:pointer; }
+
+  /* modal: never block clicks when hidden */
+  #haloModal{ pointer-events:none; }
+  #haloModal:not(.is-hidden){ pointer-events:auto; }
+  #haloModal .ov{ transition:opacity .35s ease; }
+  #haloModal .bx{ transition:transform .42s cubic-bezier(.34,1.4,.5,1), opacity .35s ease; }
+  #haloModal.is-hidden .ov{ opacity:0; }
+  #haloModal.is-hidden .bx{ opacity:0; transform:translateY(26px) scale(.94); }
+
+  #stickyBar{ transform:translateY(120%); transition:transform .4s cubic-bezier(.2,.8,.2,1); }
+  #stickyBar.show{ transform:translateY(0); }
+
+  /* desktop floating call button */
+  #fabCall{ transform:scale(0); transition:transform .4s cubic-bezier(.34,1.5,.5,1); }
+  #fabCall.show{ transform:scale(1); }
+
+  details>summary{ list-style:none; } details>summary::-webkit-details-marker{ display:none; }
+  details[open] .chev{ transform:rotate(135deg); }
+  .chev{ transition:transform .3s; }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1!important; transform:none!important; transition:none!important; }
+    .btn:hover,.card:hover{ transform:none!important; }
+  }
+  .ph{ position:relative; overflow:hidden; }
+  .ph img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+</style>
+</head>
+
+<body class="antialiased selection:bg-gold selection:text-navy">
+
+<!-- ============ POP-UP (matches reference) ============ -->
+<div id="haloModal" class="is-hidden fixed inset-0 z-[120] flex items-center justify-center p-4">
+  <div class="ov absolute inset-0 bg-navydark/70 backdrop-blur-md" id="haloBackdrop"></div>
+  <div class="bx relative w-full max-w-md bg-cream rounded-[26px] shadow-2xl overflow-hidden border border-black/5">
+    <button id="haloClose" aria-label="Close" class="absolute top-4 right-4 z-10 grid place-items-center w-9 h-9 rounded-full bg-mist text-navy/60 hover:text-navy hover:bg-navy/10 transition">
+      <i data-lucide="x" class="h-5 w-5"></i>
+    </button>
+
+    <div class="px-7 sm:px-9 py-9 text-center">
+      <!-- centered wordmark -->
+      <div class="flex items-center justify-center gap-2 mb-6">
+        <span class="grid place-items-center w-9 h-9 rounded-lg bg-navy">
+          <svg viewBox="0 0 40 40" class="w-5 h-5"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#FFC72C" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#fff"/></svg>
+        </span>
+        <span class="font-display text-xl font-extrabold tracking-tight"><span class="text-navy">GetQuick</span><span class="text-golddark">Insurance</span></span>
+      </div>
+
+      <!-- phone badge -->
+      <div class="mx-auto grid place-items-center w-16 h-16 rounded-full bg-mist mb-5">
+        <i data-lucide="phone" class="h-7 w-7 text-navy"></i>
+      </div>
+
+      <h3 class="font-display text-3xl sm:text-[2rem] font-extrabold text-navy leading-tight">Need Insurance<br>Assistance?</h3>
+      <p class="text-navy/55 mt-3 text-[15px]">Speak with a licensed insurance specialist for:</p>
+
+      <!-- 2x2 checklist -->
+      <div class="grid grid-cols-2 gap-x-4 gap-y-3 text-left mt-6 mb-7">
+        <div class="flex items-center gap-2.5 text-navy/80 text-sm font-medium"><i data-lucide="check" class="h-4 w-4 text-green-600 shrink-0"></i> New quotes</div>
+        <div class="flex items-center gap-2.5 text-navy/80 text-sm font-medium"><i data-lucide="check" class="h-4 w-4 text-green-600 shrink-0"></i> Policy updates</div>
+        <div class="flex items-center gap-2.5 text-navy/80 text-sm font-medium"><i data-lucide="check" class="h-4 w-4 text-green-600 shrink-0"></i> Billing assistance</div>
+        <div class="flex items-center gap-2.5 text-navy/80 text-sm font-medium"><i data-lucide="check" class="h-4 w-4 text-green-600 shrink-0"></i> Coverage questions</div>
+      </div>
+
+      <!-- call button -->
+      <a href="tel:+18004609157" class="call-btn btn btn-navy flex items-center justify-center gap-2.5 w-full py-4 rounded-2xl font-extrabold text-lg">
+        <i data-lucide="phone" class="h-5 w-5"></i> Call (800) 460-9157
+      </a>
+
+      <!-- continue = just closes, no navigation -->
+      <button id="continueSite" type="button" class="block mx-auto mt-4 text-navy font-bold text-[15px] hover:text-golddark transition">Continue to website</button>
+
+      <p class="text-navy/40 text-xs mt-5">Personal support is just a phone call away.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ NAV ============ -->
+<header class="fixed top-0 inset-x-0 z-50">
+  <div class="bg-cream/85 backdrop-blur-xl border-b border-navy/10">
+    <nav class="max-w-7xl mx-auto px-5 h-[72px] flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2.5 group">
+        <span class="grid place-items-center w-10 h-10 rounded-xl bg-navy">
+          <svg viewBox="0 0 40 40" class="w-6 h-6"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#FFC72C" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#fff"/></svg>
+        </span>
+        <span class="font-display text-lg font-extrabold tracking-tight"><span class="text-navy">GetQuick</span><span class="text-golddark">Insurance</span></span>
+      </a>
+      <div class="hidden lg:flex items-center gap-9 text-sm font-semibold text-navy/70">
+        <a href="#calculator" class="nav-link hover:text-golddark transition">Savings</a>
+        <a href="#coverage" class="nav-link hover:text-golddark transition">Coverage</a>
+        <a href="#steps" class="nav-link hover:text-golddark transition">How it works</a>
+        <a href="#stories" class="nav-link hover:text-golddark transition">Reviews</a>
+        <a href="#faq" class="nav-link hover:text-golddark transition">FAQ</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="tel:+18004609157" class="call-btn btn hidden sm:inline-flex items-center gap-2 bg-gold text-navy pl-3 pr-5 py-2.5 rounded-full text-sm font-bold hover:bg-golddark transition shadow-md">
+          <span class="grid place-items-center w-7 h-7 rounded-full bg-navy text-white"><i data-lucide="phone" class="h-3.5 w-3.5"></i></span>(800) 460-9157
+        </a>
+        <button id="mBtn" aria-label="Menu" class="lg:hidden p-2 rounded-lg text-navy hover:bg-navy/5"><i data-lucide="menu" class="h-6 w-6"></i></button>
+      </div>
+    </nav>
+  </div>
+  <div id="mMenu" class="lg:hidden hidden bg-cream border-b border-navy/10 shadow-xl">
+    <div class="px-5 py-4 space-y-1 text-sm font-semibold text-navy">
+      <a href="#calculator" class="nav-link block py-2.5">Savings</a>
+      <a href="#coverage" class="nav-link block py-2.5">Coverage</a>
+      <a href="#steps" class="nav-link block py-2.5">How it works</a>
+      <a href="#stories" class="nav-link block py-2.5">Reviews</a>
+      <a href="#faq" class="nav-link block py-2.5">FAQ</a>
+      <a href="tel:+18004609157" class="call-btn mt-2 flex items-center justify-center gap-2 bg-gold text-navy py-3.5 rounded-xl font-bold"><i data-lucide="phone" class="h-4 w-4"></i> Call (800) 460-9157</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="relative grain overflow-hidden pt-28 lg:pt-36 pb-24 bg-mist">
+  <div class="aurora w-[420px] h-[420px] bg-gold/40 -top-24 -left-24"></div>
+  <div class="aurora w-[380px] h-[380px] bg-white top-40 right-[-80px]"></div>
+  <div class="relative z-10 max-w-7xl mx-auto px-5 grid lg:grid-cols-12 gap-12 items-center">
+
+    <div class="lg:col-span-6 reveal">
+      <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-navy bg-white px-3.5 py-1.5 rounded-full shadow-sm">
+        <i data-lucide="badge-check" class="h-4 w-4 text-golddark"></i> Joined by 128,000+ drivers
+      </span>
+      <h1 class="font-display font-extrabold leading-[1.05] text-navy mt-6 text-[2.6rem] sm:text-6xl lg:text-[4rem]">
+        Good coverage.<br>Fair prices.<br><span class="relative inline-block">A real person on the phone.<svg viewBox="0 0 360 18" class="absolute left-0 -bottom-1 w-full h-3 text-gold" preserveAspectRatio="none"><path d="M2 12 C 90 2, 270 2, 358 11" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></span>
+      </h1>
+      <p class="mt-7 text-lg text-navy/65 max-w-xl leading-relaxed">
+        One quick call lets us check rates from many insurance companies and find the right fit for you and your budget. No robots. No long waits. No surprise price jumps.
+      </p>
+
+      <div class="mt-9 flex flex-col sm:flex-row gap-4">
+        <a href="tel:+18004609157" class="call-btn btn btn-gold inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl font-bold text-lg">
+          <i data-lucide="phone-call" class="h-5 w-5"></i> Get a free quote
+        </a>
+        <a href="#calculator" class="nav-link btn inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl font-bold text-navy bg-white border border-navy/15 hover:border-navy transition">
+          <i data-lucide="calculator" class="h-5 w-5"></i> See what you could save
+        </a>
+      </div>
+
+      <div class="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 text-sm text-navy/55 font-medium">
+        <span class="flex items-center gap-2"><i data-lucide="shield-check" class="h-4 w-4 text-navy"></i> Licensed in all 50 states</span>
+        <span class="flex items-center gap-2"><i data-lucide="lock" class="h-4 w-4 text-navy"></i> Your info stays private</span>
+        <span class="flex items-center gap-2"><i data-lucide="star" class="h-4 w-4 text-golddark fill-golddark"></i> 4.9/5 from 9,200 reviews</span>
+      </div>
+    </div>
+
+    <!-- calculator over image panel -->
+    <div id="calculator" class="lg:col-span-6 reveal delay-100">
+      <div class="relative">
+        <div class="ph rounded-[30px] h-[300px] sm:h-[360px] bg-navy shadow-2xl">
+          <svg viewBox="0 0 600 360" class="absolute inset-0 w-full h-full"><defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a3a63"/><stop offset="1" stop-color="#012A4A"/></linearGradient><linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16456f"/><stop offset="1" stop-color="#012A4A"/></linearGradient></defs><rect width="600" height="360" fill="url(#sky)"/><circle cx="480" cy="90" r="46" fill="#FFC72C" opacity=".9"/><circle cx="480" cy="90" r="72" fill="#FFC72C" opacity=".14"/><path d="M0 250 L600 210 L600 360 L0 360 Z" fill="url(#road)"/><path d="M300 250 L300 360" stroke="#fff" stroke-width="4" stroke-dasharray="14 18" opacity=".45"/><g transform="translate(210 196)"><rect x="0" y="20" width="180" height="46" rx="16" fill="#FFC72C"/><path d="M28 20 q22 -34 60 -34 h44 q30 0 44 34 Z" fill="#ffd968"/><rect x="44" y="-8" width="86" height="30" rx="8" fill="#012A4A" opacity=".55"/><circle cx="44" cy="68" r="16" fill="#012A4A"/><circle cx="44" cy="68" r="7" fill="#94a3b8"/><circle cx="140" cy="68" r="16" fill="#012A4A"/><circle cx="140" cy="68" r="7" fill="#94a3b8"/><rect x="168" y="34" width="14" height="10" rx="3" fill="#fff"/></g></svg>
+          <img src="https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=70" alt="A car on an open road at sunset" loading="lazy" onerror="this.style.display='none'">
+          <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/10 to-transparent"></div>
+          <div class="absolute top-5 left-5 flex items-center gap-2 bg-white/15 backdrop-blur px-3 py-1.5 rounded-full text-white text-xs font-bold"><span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Agents online now</div>
+        </div>
+
+        <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 w-[92%] sm:w-[88%] bg-cream rounded-3xl shadow-2xl border border-navy/10 p-6 sm:p-7">
+          <div class="flex items-center justify-between mb-5">
+            <h3 class="font-display text-xl font-extrabold text-navy">Guess your savings</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-navy bg-mist px-2.5 py-1 rounded-full">Live</span>
+          </div>
+          <label class="block text-sm font-semibold text-navy/70 mb-2">What you pay now each month</label>
+          <div class="flex items-baseline gap-2 mb-3">
+            <span class="font-display text-4xl font-extrabold text-navy">$<span id="curVal">185</span></span>
+            <span class="text-navy/40 text-sm">/mo</span>
+          </div>
+          <input id="curRange" type="range" min="60" max="420" step="5" value="185" class="w-full mb-5">
+          <label class="block text-sm font-semibold text-navy/70 mb-2">Type of coverage</label>
+          <div id="covPills" class="flex flex-wrap gap-2 mb-6">
+            <button data-pct="0.18" class="cov text-xs font-bold px-3.5 py-2 rounded-full border border-navy/15 bg-white text-navy/70 transition">Basic</button>
+            <button data-pct="0.27" class="cov text-xs font-bold px-3.5 py-2 rounded-full border border-navy bg-navy text-white transition">Full coverage</button>
+            <button data-pct="0.33" class="cov text-xs font-bold px-3.5 py-2 rounded-full border border-navy/15 bg-white text-navy/70 transition">Full + roadside</button>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="rounded-2xl bg-mist p-4">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-navy/50 mb-1">You could pay</p>
+              <p class="font-display text-2xl font-extrabold text-navy">$<span id="newVal">135</span><span class="text-sm text-navy/50">/mo</span></p>
+            </div>
+            <div class="rounded-2xl bg-gold/25 p-4">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-golddark mb-1">Saved in a year</p>
+              <p class="font-display text-2xl font-extrabold text-navy">$<span id="saveVal">600</span></p>
+            </div>
+          </div>
+          <a href="tel:+18004609157" class="call-btn btn btn-gold flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-bold">Lock this price on a call <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+          <p class="text-[10px] text-navy/40 text-center mt-3">This is an estimate. A licensed agent confirms your real price on the call.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATIC TRUST STRIP ============ -->
+<section class="py-10 border-b border-navy/10 bg-white">
+  <div class="max-w-6xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+    <div class="reveal flex flex-col items-center gap-2"><i data-lucide="map-pin" class="h-6 w-6 text-golddark"></i><p class="text-sm font-bold text-navy">All 50 states</p><p class="text-xs text-navy/50">Licensed & insured</p></div>
+    <div class="reveal delay-100 flex flex-col items-center gap-2"><i data-lucide="headphones" class="h-6 w-6 text-golddark"></i><p class="text-sm font-bold text-navy">Real people</p><p class="text-xs text-navy/50">Fast, friendly answers</p></div>
+    <div class="reveal delay-200 flex flex-col items-center gap-2"><i data-lucide="clock" class="h-6 w-6 text-golddark"></i><p class="text-sm font-bold text-navy">Claims in days</p><p class="text-xs text-navy/50">Quick and fair</p></div>
+    <div class="reveal delay-300 flex flex-col items-center gap-2"><i data-lucide="wallet" class="h-6 w-6 text-golddark"></i><p class="text-sm font-bold text-navy">Free to switch</p><p class="text-xs text-navy/50">No hidden fees</p></div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM / SOLUTION BENTO ============ -->
+<section id="coverage" class="py-24 max-w-7xl mx-auto px-5">
+  <div class="max-w-2xl reveal">
+    <span class="text-xs font-bold uppercase tracking-[0.16em] text-golddark">Protecting what matters</span>
+    <h2 class="font-display text-4xl sm:text-5xl font-extrabold mt-3 leading-tight text-navy">Switching insurance should not feel like work.</h2>
+    <p class="text-navy/60 mt-4 text-lg">Most people keep overpaying because the other choice is a week of websites and phone trees. We turned it into a five‑minute call.</p>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-5 mt-12">
+    <div class="card lg:col-span-2 lg:row-span-2 relative rounded-[28px] overflow-hidden bg-navy text-white p-8 sm:p-10 reveal">
+      <div class="ph absolute inset-0 opacity-30"><img src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1000&q=65" alt="" loading="lazy" onerror="this.style.display='none'"></div>
+      <div class="absolute inset-0 bg-gradient-to-tr from-navy via-navy/85 to-navy/40"></div>
+      <div class="relative z-10 h-full flex flex-col">
+        <span class="w-12 h-12 grid place-items-center rounded-2xl bg-gold text-navy"><i data-lucide="timer" class="h-6 w-6"></i></span>
+        <h3 class="font-display text-3xl sm:text-4xl font-extrabold mt-6 leading-tight">One call.<br>Many companies.<br>About ninety seconds.</h3>
+        <p class="text-white/70 mt-4 max-w-md">Tell us a little about you and your car. We check prices from lots of insurers while you stay on the line, then read back your best choices in normal words.</p>
+        <a href="tel:+18004609157" class="call-btn btn mt-auto inline-flex items-center gap-2 text-gold font-bold hover:gap-3 transition-all w-max">Start with a call <i data-lucide="arrow-right" class="h-4 w-4"></i></a>
+      </div>
+    </div>
+
+    <div class="card rounded-[28px] bg-mist p-7 reveal">
+      <span class="w-11 h-11 grid place-items-center rounded-xl bg-navy text-gold"><i data-lucide="user-check" class="h-5 w-5"></i></span>
+      <h3 class="font-display text-xl font-extrabold mt-4 text-navy">A person picks up</h3>
+      <p class="text-navy/60 text-sm mt-2">No phone trees. No bots. Someone who can actually help you.</p>
+    </div>
+    <div class="card rounded-[28px] bg-gold/20 p-7 reveal delay-100">
+      <span class="w-11 h-11 grid place-items-center rounded-xl bg-navy text-gold"><i data-lucide="file-text" class="h-5 w-5"></i></span>
+      <h3 class="font-display text-xl font-extrabold mt-4 text-navy">We explain the small print</h3>
+      <p class="text-navy/60 text-sm mt-2">We walk through what's covered and what's not before you say yes.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section id="steps" class="py-24 bg-white border-y border-navy/10">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto reveal">
+      <span class="text-xs font-bold uppercase tracking-[0.16em] text-golddark">How it works</span>
+      <h2 class="font-display text-4xl sm:text-5xl font-extrabold mt-3 text-navy">Three easy steps.</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 mt-16 relative">
+      <div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-navy/20 via-gold to-navy/20"></div>
+      <div class="text-center reveal">
+        <div class="relative z-10 mx-auto w-24 h-24 rounded-full bg-cream border-2 border-gold grid place-items-center shadow-lg"><span class="font-display text-3xl font-extrabold text-navy">01</span></div>
+        <h3 class="font-display text-2xl font-extrabold mt-6 text-navy">Call or tap</h3>
+        <p class="text-navy/60 mt-2 max-w-xs mx-auto">One number, one person. No menus to press through.</p>
+      </div>
+      <div class="text-center reveal delay-100">
+        <div class="relative z-10 mx-auto w-24 h-24 rounded-full bg-cream border-2 border-gold grid place-items-center shadow-lg"><span class="font-display text-3xl font-extrabold text-navy">02</span></div>
+        <h3 class="font-display text-2xl font-extrabold mt-6 text-navy">We check prices for you</h3>
+        <p class="text-navy/60 mt-2 max-w-xs mx-auto">We compare many insurers live while you're on the line.</p>
+      </div>
+      <div class="text-center reveal delay-200">
+        <div class="relative z-10 mx-auto w-24 h-24 rounded-full bg-cream border-2 border-gold grid place-items-center shadow-lg"><span class="font-display text-3xl font-extrabold text-navy">03</span></div>
+        <h3 class="font-display text-2xl font-extrabold mt-6 text-navy">Pick a plan and drive</h3>
+        <p class="text-navy/60 mt-2 max-w-xs mx-auto">Choose what fits, sign on your phone, get your papers in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section id="stories" class="py-24 max-w-7xl mx-auto px-5">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
+    <div class="max-w-xl">
+      <span class="text-xs font-bold uppercase tracking-[0.16em] text-golddark">In their words</span>
+      <h2 class="font-display text-4xl sm:text-5xl font-extrabold mt-3 leading-tight text-navy">What drivers tell us.</h2>
+    </div>
+    <div class="flex items-center gap-3 text-sm font-semibold text-navy/60">
+      <div class="flex -space-x-3">
+        <img src="https://i.pravatar.cc/80?img=12" class="w-10 h-10 rounded-full border-2 border-cream" alt="" loading="lazy">
+        <img src="https://i.pravatar.cc/80?img=32" class="w-10 h-10 rounded-full border-2 border-cream" alt="" loading="lazy">
+        <img src="https://i.pravatar.cc/80?img=45" class="w-10 h-10 rounded-full border-2 border-cream" alt="" loading="lazy">
+        <span class="w-10 h-10 rounded-full border-2 border-cream bg-navy text-white grid place-items-center text-xs font-bold">+9k</span>
+      </div>
+      rated 4.9/5 this month
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5 mt-12">
+    <figure class="card md:col-span-2 rounded-[28px] bg-navy text-white p-8 sm:p-10 reveal">
+      <div class="flex text-gold mb-5 tracking-widest">★★★★★</div>
+      <blockquote class="font-display text-2xl sm:text-3xl font-bold leading-snug">"I paid $268 a month for three years. One call, twenty minutes, and now I'm at $149 with <span class="text-gold">better</span> coverage. I actually laughed."</blockquote>
+      <figcaption class="flex items-center gap-4 mt-8">
+        <img src="https://i.pravatar.cc/120?img=15" class="w-14 h-14 rounded-full ring-2 ring-gold" alt="Daniela R." loading="lazy">
+        <div><p class="font-bold">Daniela R.</p><p class="text-white/50 text-sm">2021 Honda Civic · Austin, TX · saved $1,428 a year</p></div>
+      </figcaption>
+    </figure>
+
+    <figure class="card rounded-[28px] bg-mist p-8 reveal delay-100">
+      <div class="flex text-golddark mb-4 tracking-widest">★★★★★</div>
+      <blockquote class="text-navy/80 leading-relaxed">"My first accident ever. The same person who quoted me also handled my claim. That almost never happens."</blockquote>
+      <figcaption class="flex items-center gap-3 mt-6">
+        <img src="https://i.pravatar.cc/120?img=51" class="w-12 h-12 rounded-full" alt="Marcus T." loading="lazy">
+        <div><p class="font-bold text-sm text-navy">Marcus T.</p><p class="text-navy/50 text-xs">F‑150 · Denver, CO</p></div>
+      </figcaption>
+    </figure>
+
+    <figure class="card rounded-[28px] bg-gold/20 p-8 reveal">
+      <div class="flex text-golddark mb-4 tracking-widest">★★★★★</div>
+      <blockquote class="text-navy/80 leading-relaxed">"New driver, and everyone else quoted me high. GetQuick found a program I didn't even know about."</blockquote>
+      <figcaption class="flex items-center gap-3 mt-6">
+        <img src="https://i.pravatar.cc/120?img=47" class="w-12 h-12 rounded-full" alt="Priya S." loading="lazy">
+        <div><p class="font-bold text-sm text-navy">Priya S.</p><p class="text-navy/50 text-xs">Corolla · Seattle, WA</p></div>
+      </figcaption>
+    </figure>
+
+    <div class="card md:col-span-2 rounded-[28px] bg-white border border-navy/10 p-8 flex flex-col sm:flex-row items-center gap-8 reveal delay-100">
+      <div class="flex-1 text-center sm:text-left">
+        <p class="font-display text-5xl font-extrabold text-golddark" data-count="42" data-prefix="$" data-suffix="M">$0M</p>
+        <p class="text-navy/60 mt-1 font-medium text-sm">saved for drivers in the last two years</p>
+      </div>
+      <div class="hidden sm:block w-px h-16 bg-navy/10"></div>
+      <div class="flex-1 text-center sm:text-left">
+        <p class="font-display text-5xl font-extrabold text-navy" data-count="128" data-suffix="k">0k</p>
+        <p class="text-navy/60 mt-1 font-medium text-sm">policies we look after</p>
+      </div>
+      <div class="hidden sm:block w-px h-16 bg-navy/10"></div>
+      <div class="flex-1 text-center sm:text-left">
+        <p class="font-display text-5xl font-extrabold text-navy" data-count="22" data-suffix="s">0s</p>
+        <p class="text-navy/60 mt-1 font-medium text-sm">to reach a real person</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUARANTEE BAND ============ -->
+<section class="py-20 bg-navy text-white grain relative overflow-hidden">
+  <div class="aurora w-[400px] h-[400px] bg-gold/30 -bottom-40 left-1/4"></div>
+  <div class="relative z-10 max-w-5xl mx-auto px-5 text-center reveal">
+    <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-gold bg-white/10 px-3.5 py-1.5 rounded-full"><i data-lucide="award" class="h-4 w-4"></i> Our promise</span>
+    <h2 class="font-display text-4xl sm:text-6xl font-extrabold mt-6 leading-tight">If we can't beat your price,<br>you don't pay us.</h2>
+    <p class="text-white/60 mt-5 max-w-2xl mx-auto text-lg">We'll match or beat your current renewable price on similar coverage. If we can't, the call costs you nothing and you keep your old policy. Simple.</p>
+    <div class="flex flex-wrap justify-center gap-4 mt-10 text-sm font-bold">
+      <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl"><i data-lucide="shield-check" class="h-4 w-4 text-gold"></i> 30‑day free look</span>
+      <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl"><i data-lucide="lock" class="h-4 w-4 text-gold"></i> We never sell your info</span>
+      <span class="flex items-center gap-2 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl"><i data-lucide="badge-check" class="h-4 w-4 text-gold"></i> Top‑rated service</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="py-24 max-w-3xl mx-auto px-5">
+  <div class="text-center reveal">
+    <span class="text-xs font-bold uppercase tracking-[0.16em] text-golddark">Good to know</span>
+    <h2 class="font-display text-4xl sm:text-5xl font-extrabold mt-3 text-navy">Straight answers to common questions.</h2>
+  </div>
+  <div class="mt-12 space-y-3">
+    <details class="group bg-white rounded-2xl border border-navy/10 shadow-sm reveal">
+      <summary class="flex justify-between items-center cursor-pointer p-6 font-bold text-navy"><span>Are you the insurance company?</span><i data-lucide="plus" class="chev h-5 w-5 text-golddark"></i></summary>
+      <div class="px-6 pb-6 text-navy/65">No. We're an independent lead generation service. We don't write the policies ourselves — we connect you with licensed insurance providers and their representatives who can offer you coverage.</div>
+    </details>
+    <details class="group bg-white rounded-2xl border border-navy/10 shadow-sm reveal">
+      <summary class="flex justify-between items-center cursor-pointer p-6 font-bold text-navy"><span>Will the call buttons really dial?</span><i data-lucide="plus" class="chev h-5 w-5 text-golddark"></i></summary>
+      <div class="px-6 pb-6 text-navy/65">Yes. Every "Call" button on this page dials <a href="tel:+18004609157" class="call-btn text-golddark font-bold hover:underline">(800) 460-9157</a> straight away on your phone, and opens your dialer on a computer. One tap, a real person in about 22 seconds.</div>
+    </details>
+    <details class="group bg-white rounded-2xl border border-navy/10 shadow-sm reveal">
+      <summary class="flex justify-between items-center cursor-pointer p-6 font-bold text-navy"><span>What if I have tickets or an at‑fault accident?</span><i data-lucide="plus" class="chev h-5 w-5 text-golddark"></i></summary>
+      <div class="px-6 pb-6 text-navy/65">Some of the companies we work with are good with drivers who have a rough record. Tell the agent your history up front and they'll point you to the prices that treat you fair — often well below what a big name quotes.</div>
+    </details>
+    <details class="group bg-white rounded-2xl border border-navy/10 shadow-sm reveal">
+      <summary class="flex justify-between items-center cursor-pointer p-6 font-bold text-navy"><span>Does getting a quote affect my credit?</span><i data-lucide="plus" class="chev h-5 w-5 text-golddark"></i></summary>
+      <div class="px-6 pb-6 text-navy/65">No. The quick comparison only does a soft check. You can stop at any time with zero effect on your score.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="relative py-28 overflow-hidden bg-gradient-to-br from-navy to-navydark grain">
+  <div class="aurora w-[420px] h-[420px] bg-gold/25 -top-20 right-10"></div>
+  <div class="relative z-10 max-w-4xl mx-auto px-5 text-center text-white reveal">
+    <h2 class="font-display text-5xl sm:text-7xl font-extrabold leading-[1.02]">Your best price<br>is one call away.</h2>
+    <p class="mt-6 text-lg text-white/75 max-w-xl mx-auto">Prices you lock today hold for 24 hours. Talk to a licensed person now and see your number before you commit to anything.</p>
+    <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+      <a href="tel:+18004609157" class="call-btn btn inline-flex items-center justify-center gap-3 bg-gold text-navy px-9 py-5 rounded-2xl font-extrabold text-xl shadow-2xl hover:bg-golddark transition"><i data-lucide="phone" class="h-6 w-6"></i> (800) 460-9157</a>
+      <a href="#calculator" class="nav-link btn inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur border border-white/25 text-white px-8 py-5 rounded-2xl font-bold text-lg hover:bg-white/20 transition">Run my estimate again</a>
+    </div>
+    <p class="mt-6 text-sm text-white/60 font-medium">Avg. wait 22 sec · Mon–Sat 8am–8pm MT · No obligation</p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-navydark text-slate-400 pt-16 pb-28 md:pb-16">
+  <div class="max-w-7xl mx-auto px-5">
+    <div class="grid md:grid-cols-12 gap-10 pb-12 border-b border-white/10">
+      <div class="md:col-span-4">
+        <a href="#top" class="flex items-center gap-2.5">
+          <span class="grid place-items-center w-10 h-10 rounded-xl bg-gold"><svg viewBox="0 0 40 40" class="w-6 h-6"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#012A4A" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#012A4A"/></svg></span>
+          <span class="font-display text-lg font-extrabold tracking-tight"><span class="text-white">GetQuick</span><span class="text-gold">Insurance</span></span>
+        </a>
+        <p class="mt-5 text-sm max-w-xs leading-relaxed">An independent lead generation service. We check many companies for you and connect you with licensed providers who can offer coverage.</p>
+      </div>
+      <div class="md:col-span-2"><h4 class="text-white font-bold mb-4 text-sm">Explore</h4><ul class="space-y-2.5 text-sm"><li><a href="#calculator" class="nav-link hover:text-gold transition">Savings</a></li><li><a href="#coverage" class="nav-link hover:text-gold transition">Coverage</a></li><li><a href="#steps" class="nav-link hover:text-gold transition">How it works</a></li><li><a href="#faq" class="nav-link hover:text-gold transition">FAQ</a></li></ul></div>
+      <div class="md:col-span-3"><h4 class="text-white font-bold mb-4 text-sm">Office</h4><ul class="space-y-3 text-sm">
+        <li class="flex gap-3 items-center"><i data-lucide="phone" class="h-4 w-4 text-gold shrink-0"></i><a href="tel:+18004609157" class="call-btn hover:text-white transition">(800) 460-9157</a></li>
+        <li class="flex gap-3 items-center"><i data-lucide="mail" class="h-4 w-4 text-gold shrink-0"></i><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f1828481819e8385b1989f828483909f929497908285848290df929e9c">[email&#160;protected]</a></span></li>
+      </ul></div>
+      <div class="md:col-span-3"><h4 class="text-white font-bold mb-4 text-sm">Hours</h4><ul class="space-y-2.5 text-sm"><li class="flex justify-between"><span>Mon – Fri</span><span class="text-white">8am – 8pm MT</span></li><li class="flex justify-between"><span>Saturday</span><span class="text-white">9am – 5pm MT</span></li><li class="flex justify-between"><span>Sunday</span><span>Closed</span></li></ul></div>
+    </div>
+
+    <!-- legal / disclaimer block (matches reference structure, in our theme) -->
+    <div class="pt-8 border-t border-white/10">
+      <p class="text-sm leading-relaxed text-slate-400 max-w-5xl">
+        <strong class="text-slate-200 font-bold">Disclaimer:</strong> GetQuickInsurance LLC is an independent lead generation service. We are not an insurance company, insurance agency, or insurance provider. We do not sell insurance policies or provide coverage. When you contact us with your information, you agree that licensed insurance providers and their representatives may reach out to you by phone, SMS, or email regarding insurance options.
+      </p>
+    </div>
+    <div class="mt-6 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-3 text-xs text-slate-500">
+      <p>© 2026 GetQuickInsurance LLC. All rights reserved.</p>
+      <p>Legal Name: GetQuickInsurance LLC</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ DESKTOP FLOATING CALL BUTTON ============ -->
+<a href="tel:+18004609157" id="fabCall" aria-label="Call now" class="call-btn btn hidden md:grid fixed bottom-6 right-6 z-40 place-items-center w-16 h-16 rounded-full bg-gold text-navy shadow-2xl hover:bg-golddark transition">
+  <span class="absolute inset-0 rounded-full bg-gold animate-ping opacity-30"></span>
+  <i data-lucide="phone" class="h-7 w-7 relative"></i>
+</a>
+
+<!-- ============ STICKY MOBILE CALL BAR ============ -->
+<div id="stickyBar" class="md:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-gradient-to-t from-cream via-cream to-transparent">
+  <a href="tel:+18004609157" class="call-btn btn btn-gold flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-extrabold text-lg shadow-2xl">
+    <span class="relative flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-navy opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-navy"></span></span>
+    Tap to call — (800) 460-9157
+  </a>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+lucide.createIcons();
+
+/* every tel anchor dials reliably */
+document.querySelectorAll('a.call-btn, a[href^="tel:"]').forEach(function(b){
+  b.addEventListener('click', function(e){
+    var h=this.getAttribute('href');
+    if(h && h.indexOf('tel:')===0){ e.preventDefault(); e.stopPropagation(); window.location.href=h; }
+  });
+});
+
+/* mobile menu */
+var mBtn=document.getElementById('mBtn'), mMenu=document.getElementById('mMenu');
+mBtn.addEventListener('click',function(){ mMenu.classList.toggle('hidden'); });
+mMenu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',function(){ mMenu.classList.add('hidden'); }); });
+
+/* smooth scroll */
+document.querySelectorAll('.nav-link').forEach(function(a){
+  a.addEventListener('click',function(e){
+    var id=this.getAttribute('href');
+    if(id && id.charAt(0)==='#'){ var t=document.querySelector(id); if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); } }
+  });
+});
+
+/* reveal */
+var io=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } }); },{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+/* counters */
+var cio=new IntersectionObserver(function(es){ es.forEach(function(en){ if(en.isIntersecting){ runCount(en.target); cio.unobserve(en.target); } }); },{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(function(el){ cio.observe(el); });
+function runCount(el){
+  var end=parseFloat(el.dataset.count), pre=el.dataset.prefix||'', suf=el.dataset.suffix||'', dur=1400, st=null;
+  function step(ts){ if(!st)st=ts; var p=Math.min((ts-st)/dur,1); var v=Math.floor((1-Math.pow(1-p,3))*end); el.textContent=pre+v+suf; if(p<1)requestAnimationFrame(step); else el.textContent=pre+end+suf; }
+  requestAnimationFrame(step);
+}
+
+/* calculator */
+var range=document.getElementById('curRange'), curVal=document.getElementById('curVal'), newVal=document.getElementById('newVal'), saveVal=document.getElementById('saveVal');
+var covs=document.querySelectorAll('.cov'), pct=0.27;
+function calc(){ var cur=+range.value; var nw=Math.round(cur*(1-pct)); var yr=Math.round((cur-nw)*12); curVal.textContent=cur; newVal.textContent=nw; saveVal.textContent=yr.toLocaleString(); }
+range.addEventListener('input',calc);
+covs.forEach(function(c){ c.addEventListener('click',function(){
+  covs.forEach(function(x){ x.className='cov text-xs font-bold px-3.5 py-2 rounded-full border border-navy/15 bg-white text-navy/70 transition'; });
+  c.className='cov text-xs font-bold px-3.5 py-2 rounded-full border border-navy bg-navy text-white transition';
+  pct=parseFloat(c.dataset.pct); calc();
+});});
+calc();
+
+/* modal open/close + continue (closes only, no navigation) */
+var modal=document.getElementById('haloModal');
+function openM(){ modal.classList.remove('is-hidden'); document.body.style.overflow='hidden'; }
+function closeM(){ modal.classList.add('is-hidden'); document.body.style.overflow=''; }
+document.getElementById('haloClose').addEventListener('click',closeM);
+document.getElementById('haloBackdrop').addEventListener('click',closeM);
+document.getElementById('continueSite').addEventListener('click',closeM);
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });
+window.addEventListener('load',function(){ setTimeout(openM,700); });
+
+/* sticky bar + desktop fab appear after hero */
+var sb=document.getElementById('stickyBar'), fab=document.getElementById('fabCall');
+window.addEventListener('scroll',function(){
+  var on = window.scrollY>520;
+  if(on){ sb.classList.add('show'); fab.classList.add('show'); }
+  else { sb.classList.remove('show'); fab.classList.remove('show'); }
+});
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
