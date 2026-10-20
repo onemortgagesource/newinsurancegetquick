@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GetQuickInsurance — Auto & Home Insurance, Made Simple</title>
 <meta name="description" content="One quick call compares rates from many insurance companies so you can find fair coverage and a real person who helps. New quotes, policy updates, billing and coverage questions welcome.">
+<link rel="icon" type="image/png" href="logo.png">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -30,6 +31,16 @@ tailwind.config = {
   body{ font-family:'Inter',sans-serif; background:#fff; color:#33475b; }
   h1,h2,h3,.font-display{ font-family:'Figtree',sans-serif; letter-spacing:-0.01em; }
 
+  /* ---- IMAGE LOGO (transparent-friendly, sized by height) ---- */
+  .brand-logo{ height:44px; width:auto; object-fit:contain; display:block; }
+  .brand-logo-lg{ height:62px; width:auto; object-fit:contain; display:block; }
+  .brand-logo-foot{ height:40px; width:auto; object-fit:contain; display:block; }
+  @media (max-width:768px){
+    .brand-logo{ height:38px; }
+    .brand-logo-lg{ height:52px; }
+    .brand-logo-foot{ height:34px; }
+  }
+
   .grain::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.035; z-index:0;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
   .aurora{ position:absolute; border-radius:9999px; filter:blur(70px); opacity:.5; pointer-events:none; }
@@ -53,7 +64,7 @@ tailwind.config = {
   input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.12); }
   input[type=range]::-moz-range-thumb{ width:26px; height:26px; border-radius:50%; background:#fff; border:5px solid #012A4A; cursor:pointer; }
 
-  /* modal: never block clicks when hidden */
+  /* modal: never block clicks when hidden (KEEP THIS — it's why page buttons work) */
   #haloModal{ pointer-events:none; }
   #haloModal:not(.is-hidden){ pointer-events:auto; }
   #haloModal .ov{ transition:opacity .35s ease; }
@@ -83,21 +94,19 @@ tailwind.config = {
 
 <body class="antialiased selection:bg-gold selection:text-navy">
 
-<!-- ============ POP-UP (matches reference) ============ -->
+<!-- ============ POP-UP ============ -->
 <div id="haloModal" class="is-hidden fixed inset-0 z-[120] flex items-center justify-center p-4">
   <div class="ov absolute inset-0 bg-navydark/70 backdrop-blur-md" id="haloBackdrop"></div>
   <div class="bx relative w-full max-w-md bg-cream rounded-[26px] shadow-2xl overflow-hidden border border-black/5">
-    <button id="haloClose" aria-label="Close" class="absolute top-4 right-4 z-10 grid place-items-center w-9 h-9 rounded-full bg-mist text-navy/60 hover:text-navy hover:bg-navy/10 transition">
-      <i data-lucide="x" class="h-5 w-5"></i>
+    <!-- smaller ✕ : w-7 h-7, glyph h-4 w-4 -->
+    <button id="haloClose" aria-label="Close" class="absolute top-4 right-4 z-10 grid place-items-center w-7 h-7 rounded-full bg-mist text-navy/60 hover:text-navy hover:bg-navy/10 transition">
+      <i data-lucide="x" class="h-4 w-4"></i>
     </button>
 
     <div class="px-7 sm:px-9 py-9 text-center">
-      <!-- centered wordmark -->
-      <div class="flex items-center justify-center gap-2 mb-6">
-        <span class="grid place-items-center w-9 h-9 rounded-lg bg-navy">
-          <svg viewBox="0 0 40 40" class="w-5 h-5"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#FFC72C" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#fff"/></svg>
-        </span>
-        <span class="font-display text-xl font-extrabold tracking-tight"><span class="text-navy">GetQuick</span><span class="text-golddark">Insurance</span></span>
+      <!-- centered logo -->
+      <div class="flex justify-center mb-6">
+        <img src="logo.png" alt="GetQuick Insurance" class="brand-logo-lg" loading="eager">
       </div>
 
       <!-- phone badge -->
@@ -121,10 +130,7 @@ tailwind.config = {
         <i data-lucide="phone" class="h-5 w-5"></i> Call (800) 460-9157
       </a>
 
-      <!-- continue = just closes, no navigation -->
-      <button id="continueSite" type="button" class="block mx-auto mt-4 text-navy font-bold text-[15px] hover:text-golddark transition">Continue to website</button>
-
-      <p class="text-navy/40 text-xs mt-5">Personal support is just a phone call away.</p>
+      <p class="text-navy/40 text-xs mt-6">Personal support is just a phone call away.</p>
     </div>
   </div>
 </div>
@@ -133,11 +139,8 @@ tailwind.config = {
 <header class="fixed top-0 inset-x-0 z-50">
   <div class="bg-cream/85 backdrop-blur-xl border-b border-navy/10">
     <nav class="max-w-7xl mx-auto px-5 h-[72px] flex items-center justify-between">
-      <a href="#top" class="flex items-center gap-2.5 group">
-        <span class="grid place-items-center w-10 h-10 rounded-xl bg-navy">
-          <svg viewBox="0 0 40 40" class="w-6 h-6"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#FFC72C" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#fff"/></svg>
-        </span>
-        <span class="font-display text-lg font-extrabold tracking-tight"><span class="text-navy">GetQuick</span><span class="text-golddark">Insurance</span></span>
+      <a href="#top" class="flex items-center group" aria-label="GetQuick Insurance home">
+        <img src="logo.png" alt="GetQuick Insurance" class="brand-logo" loading="eager">
       </a>
       <div class="hidden lg:flex items-center gap-9 text-sm font-semibold text-navy/70">
         <a href="#calculator" class="nav-link hover:text-golddark transition">Savings</a>
@@ -440,21 +443,22 @@ tailwind.config = {
   <div class="max-w-7xl mx-auto px-5">
     <div class="grid md:grid-cols-12 gap-10 pb-12 border-b border-white/10">
       <div class="md:col-span-4">
-        <a href="#top" class="flex items-center gap-2.5">
-          <span class="grid place-items-center w-10 h-10 rounded-xl bg-gold"><svg viewBox="0 0 40 40" class="w-6 h-6"><path d="M8 24 q12 -16 24 0" fill="none" stroke="#012A4A" stroke-width="3.4" stroke-linecap="round"/><circle cx="20" cy="14" r="3.2" fill="#012A4A"/></svg></span>
-          <span class="font-display text-lg font-extrabold tracking-tight"><span class="text-white">GetQuick</span><span class="text-gold">Insurance</span></span>
+        <!-- white pill so the navy/orange logo reads on the dark footer -->
+        <a href="#top" class="inline-flex items-center rounded-xl bg-white px-3 py-2 shadow-sm" aria-label="GetQuick Insurance home">
+          <img src="logo.png" alt="GetQuick Insurance" class="brand-logo-foot" loading="lazy">
         </a>
         <p class="mt-5 text-sm max-w-xs leading-relaxed">An independent lead generation service. We check many companies for you and connect you with licensed providers who can offer coverage.</p>
       </div>
       <div class="md:col-span-2"><h4 class="text-white font-bold mb-4 text-sm">Explore</h4><ul class="space-y-2.5 text-sm"><li><a href="#calculator" class="nav-link hover:text-gold transition">Savings</a></li><li><a href="#coverage" class="nav-link hover:text-gold transition">Coverage</a></li><li><a href="#steps" class="nav-link hover:text-gold transition">How it works</a></li><li><a href="#faq" class="nav-link hover:text-gold transition">FAQ</a></li></ul></div>
       <div class="md:col-span-3"><h4 class="text-white font-bold mb-4 text-sm">Office</h4><ul class="space-y-3 text-sm">
+        
         <li class="flex gap-3 items-center"><i data-lucide="phone" class="h-4 w-4 text-gold shrink-0"></i><a href="tel:+18004609157" class="call-btn hover:text-white transition">(800) 460-9157</a></li>
-        <li class="flex gap-3 items-center"><i data-lucide="mail" class="h-4 w-4 text-gold shrink-0"></i><span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f1828481819e8385b1989f828483909f929497908285848290df929e9c">[email&#160;protected]</a></span></li>
+        <li class="flex gap-3 items-center"><i data-lucide="mail" class="h-4 w-4 text-gold shrink-0"></i><span>support@insurancefastusa.com</span></li>
       </ul></div>
       <div class="md:col-span-3"><h4 class="text-white font-bold mb-4 text-sm">Hours</h4><ul class="space-y-2.5 text-sm"><li class="flex justify-between"><span>Mon – Fri</span><span class="text-white">8am – 8pm MT</span></li><li class="flex justify-between"><span>Saturday</span><span class="text-white">9am – 5pm MT</span></li><li class="flex justify-between"><span>Sunday</span><span>Closed</span></li></ul></div>
     </div>
 
-    <!-- legal / disclaimer block (matches reference structure, in our theme) -->
+    <!-- legal / disclaimer block -->
     <div class="pt-8 border-t border-white/10">
       <p class="text-sm leading-relaxed text-slate-400 max-w-5xl">
         <strong class="text-slate-200 font-bold">Disclaimer:</strong> GetQuickInsurance LLC is an independent lead generation service. We are not an insurance company, insurance agency, or insurance provider. We do not sell insurance policies or provide coverage. When you contact us with your information, you agree that licensed insurance providers and their representatives may reach out to you by phone, SMS, or email regarding insurance options.
@@ -481,7 +485,7 @@ tailwind.config = {
   </a>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 lucide.createIcons();
 
 /* every tel anchor dials reliably */
@@ -530,14 +534,11 @@ covs.forEach(function(c){ c.addEventListener('click',function(){
 });});
 calc();
 
-/* modal open/close + continue (closes only, no navigation) */
+/* modal: opens on load, closes ONLY via the ✕ button (no backdrop click, no Escape) */
 var modal=document.getElementById('haloModal');
 function openM(){ modal.classList.remove('is-hidden'); document.body.style.overflow='hidden'; }
 function closeM(){ modal.classList.add('is-hidden'); document.body.style.overflow=''; }
 document.getElementById('haloClose').addEventListener('click',closeM);
-document.getElementById('haloBackdrop').addEventListener('click',closeM);
-document.getElementById('continueSite').addEventListener('click',closeM);
-document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });
 window.addEventListener('load',function(){ setTimeout(openM,700); });
 
 /* sticky bar + desktop fab appear after hero */
@@ -548,8 +549,5 @@ window.addEventListener('scroll',function(){
   else { sb.classList.remove('show'); fab.classList.remove('show'); }
 });
 </script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v4bc70e2c01a94c73b74392e4234840661791215815920" integrity="sha512-L0ha0OXavK/8okipN9F8BtP84dg9DUhPERbBXzwI6dgTA55d2+yweo3pn5CSFYs45/r8md2+xvUPtTdvTNRfjA==" data-cf-beacon='{"version":"2024.11.0","token":"9b18c21ac64546b39898e1bb6afa4ad6","r":1,"spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
